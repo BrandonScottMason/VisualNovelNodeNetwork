@@ -41,8 +41,8 @@ namespace NodeNetworkExample
                 for (int i = 0; i < _viewModel.NodeList.NodeTypes.Count; i++)
                 {
                     // Compare by name since tuples require exact comparison
-                    if (element.DataContext is (string contextName, System.Type _) && 
-                        _viewModel.NodeList.NodeTypes[i].Item1 == contextName)
+                    if (element.DataContext is NodeTypeInfo context && 
+                        _viewModel.NodeList.NodeTypes[i].Name == context.Name)
                     {
                         index = i;
                         break;

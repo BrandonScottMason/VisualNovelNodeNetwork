@@ -37,7 +37,7 @@
                                         MouseLeftButtonDown="NodeItem_MouseLeftButtonDown"
                                         MouseMove="NodeItem_MouseMove"
                                         Cursor="Hand">
-                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontWeight="Bold"/>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

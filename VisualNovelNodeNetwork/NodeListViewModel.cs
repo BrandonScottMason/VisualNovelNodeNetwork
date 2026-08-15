@@ -1,26 +1,34 @@
-using System.Collections.Generic;
-using System.Reactive;
 using ReactiveUI;
+using System.Text.RegularExpressions;
 
 namespace NodeNetworkExample
 {
+    /// <summary>
+    /// Represents a node type that can be added to the network.
+    /// </summary>
+    public class NodeTypeInfo(string name, System.Type type)
+    {
+        public string Name { get; } = name;
+        public System.Type Type { get; } = type;
+    }
+
     /// <summary>
     /// ViewModel for managing a list of available node types that can be added to the network.
     /// </summary>
     public class NodeListViewModel : ReactiveObject
     {
-        private readonly List<(string Name, System.Type Type)> _nodeTypes;
+        private readonly List<NodeTypeInfo> _nodeTypes;
 
-        public IReadOnlyList<(string Name, System.Type Type)> NodeTypes => _nodeTypes.AsReadOnly();
+        public IReadOnlyList<NodeTypeInfo> NodeTypes => _nodeTypes.AsReadOnly();
 
         public ReactiveCommand<int, BaseNarrativeNode> CreateNodeCommand { get; }
 
         public NodeListViewModel()
         {
-            _nodeTypes = new List<(string, System.Type)>
-            {
-                ("Base Narrative Node", typeof(BaseNarrativeNode))
-            };
+            _nodeTypes =
+            [
+                new NodeTypeInfo(GetReadableNodeName(typeof(BaseNarrativeNode)), typeof(BaseNarrativeNode))
+            ];
 
             CreateNodeCommand = ReactiveCommand.Create<int, BaseNarrativeNode>(
                 index => (BaseNarrativeNode)System.Activator.CreateInstance(_nodeTypes[index].Type)!);
@@ -36,7 +44,7 @@ namespace NodeNetworkExample
                 throw new System.ArgumentException($"Node type must derive from BaseNarrativeNode", nameof(nodeType));
             }
 
-            _nodeTypes.Add((name, nodeType));
+            _nodeTypes.Add(new NodeTypeInfo(name, nodeType));
         }
 
         /// <summary>
@@ -45,6 +53,13 @@ namespace NodeNetworkExample
         public BaseNarrativeNode CreateNode(int index)
         {
             return (BaseNarrativeNode)System.Activator.CreateInstance(_nodeTypes[index].Type)!;
+        }
+
+        private static readonly Regex CamelCaseRegex = new(@"(?<!^)(\B[A-Z])");
+        private string GetReadableNodeName(Type classType)
+        {
+            string classNmae = classType.Name;
+            return CamelCaseRegex.Replace(classNmae, " $1");
         }
     }
 }
