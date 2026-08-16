@@ -62,11 +62,12 @@ namespace NodeNetworkExample
 
         private void UpdateResponses(int newValue)
         {
-            if (newValue > Responses.Count)
+            while (newValue > Responses.Count)
             {
                 AddResponseOutput();
             }
-            else if (newValue < Responses.Count)
+
+            while (newValue < Responses.Count)
             {
                 RemoveLastResponseOutput();
             }
@@ -78,7 +79,7 @@ namespace NodeNetworkExample
 
             var newOutput = new ValueNodeOutputViewModel<string>()
             {
-                Name = newResponse.Value,
+                Name = $"Response {Responses.Count + 1}",
                 Editor = newResponse,
                 Value = newResponse.WhenAnyValue(x => x.Value)
             };
@@ -94,6 +95,78 @@ namespace NodeNetworkExample
                 var lastResponse = Responses[Responses.Count - 1];
                 Responses.Remove(lastResponse);
                 this.Outputs.Remove(lastResponse);
+            }
+        }
+
+        /// <summary>
+        /// Serializes the node data to a dictionary.
+        /// </summary>
+        public Dictionary<string, object> Serialize()
+        {
+            return new Dictionary<string, object>
+            {
+                { "Name", this.Name },
+                { "PositionX", this.Position.X },
+                { "PositionY", this.Position.Y },
+                { "SpeakerName", SpeakerName.Value },
+                { "SpeakerDialogue", SpeakerDialogue.Value },
+                { "ResponseCount", ResponseCount.Value ?? 0},
+                { "Responses", Responses
+                    .Select(r => (r.Editor as StringValueEditorViewModel)?.Value ?? "")
+                    .ToList() }
+            };
+        }
+
+        /// <summary>
+        /// Deserializes node data from a dictionary.
+        /// </summary>
+        public void Deserialize(Dictionary<string, object> data)
+        {
+            if (data.TryGetValue("Name", out var name))
+                this.Name = name.ToString();
+
+            if (data.TryGetValue("PositionX", out var posX) && data.TryGetValue("PositionY", out var posY))
+            {
+                if (double.TryParse(posX.ToString(), out var x) && double.TryParse(posY.ToString(), out var y))
+                    this.Position = new System.Windows.Point(x, y);
+            }
+
+            if (data.TryGetValue("SpeakerName", out var speakerName))
+                SpeakerName.Value = speakerName.ToString() ?? string.Empty;
+
+            if (data.TryGetValue("SpeakerDialogue", out var dialogue))
+                SpeakerDialogue.Value = dialogue.ToString() ?? string.Empty;
+
+            if (data.TryGetValue("ResponseCount", out var responseCount) && int.TryParse(responseCount.ToString(), out var count))
+            {
+                ResponseCount.Value = count;
+            }
+
+            // Restore response texts
+            if (data.TryGetValue("Responses", out var responses))
+            {
+                List<string> responsesList = new();
+
+                if (responses is System.Text.Json.JsonElement jsonElement && jsonElement.ValueKind == System.Text.Json.JsonValueKind.Array)
+                {
+                    responsesList = jsonElement.EnumerateArray().Select(r => r.GetString() ?? "").ToList();
+                }
+                else if (responses is List<object> list)
+                {
+                    responsesList = list.Cast<object>().Select(r => r?.ToString() ?? "").ToList();
+                }
+                else if (responses is IEnumerable<object> enumerable)
+                {
+                    responsesList = enumerable.Select(r => r?.ToString() ?? "").ToList();
+                }
+
+                for (int i = 0; i < responsesList.Count && i < Responses.Count; i++)
+                {
+                    if (Responses[i].Editor is StringValueEditorViewModel editor)
+                    {
+                        editor.Value = responsesList[i].ToString() ?? string.Empty;
+                    }
+                }
             }
         }
 

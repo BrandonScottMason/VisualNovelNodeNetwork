@@ -138,5 +138,70 @@ namespace NodeNetworkExample
                 _previewNode = null;
             }
         }
+
+        private void mnuNew_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private async void mnuOpen_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = (System.Windows.Controls.MenuItem)sender;
+            menuItem.IsEnabled = false;
+
+            try
+            {
+                await _viewModel.LoadNetworkAsync("narrative.json");
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Open Failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                menuItem.IsEnabled = false;
+            }
+        }
+
+        private async void mnuSave_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = (System.Windows.Controls.MenuItem)sender;
+            menuItem.IsEnabled = false;
+
+            try
+            {
+                await _viewModel.SaveNetworkAsync("narrative.json");
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Save Failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                menuItem.IsEnabled = false;
+            }
+        }
+
+        private void mnuSaveAs_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void mnuExit_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel.Network.Nodes.Count > 0)
+            {
+                MessageBoxResult result = MessageBox.Show("Are you sure you want to exit? Any unsaved work will be lost.", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    Application.Current.Shutdown();
+                }
+            }
+            else
+            {
+                Application.Current.Shutdown();
+            }
+        }
     }
 }
