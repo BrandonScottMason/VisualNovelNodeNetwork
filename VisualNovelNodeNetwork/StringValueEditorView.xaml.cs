@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using ReactiveUI;
 
-namespace NodeNetworkExample
+namespace VisualNovelNodeNetwork
 {
     public partial class StringValueEditorView : IViewFor<StringValueEditorViewModel>
     {

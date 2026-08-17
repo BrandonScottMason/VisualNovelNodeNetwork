@@ -1,7 +1,7 @@
 ﻿using NodeNetwork.Toolkit.ValueNode;
 using ReactiveUI;
 
-namespace NodeNetworkExample
+namespace VisualNovelNodeNetwork
 {
     public class StringValueEditorViewModel : ValueEditorViewModel<string>
     {

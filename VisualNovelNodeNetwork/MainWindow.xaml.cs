@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 
-namespace NodeNetworkExample
+namespace VisualNovelNodeNetwork
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

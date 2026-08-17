@@ -6,7 +6,7 @@ using System.Reactive;
 using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
 
-namespace NodeNetworkExample
+namespace VisualNovelNodeNetwork
 {
     public class BaseNarrativeNode : NodeViewModel
     {

@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using ReactiveUI;
 
-namespace NodeNetworkExample
+namespace VisualNovelNodeNetwork
 {
     public partial class IntegerValueEditorView : UserControl, IViewFor<IntegerValueEditorViewModel>
     {
