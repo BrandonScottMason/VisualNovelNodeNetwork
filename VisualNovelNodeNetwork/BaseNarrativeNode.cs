@@ -13,8 +13,8 @@ namespace NodeNetworkExample
         private CompositeDisposable _disposables = new();
 
         public NodeInputViewModel Input { get; }
-        public StringValueEditorViewModel SpeakerName { get; } = new StringValueEditorViewModel() { Value = "Speaker Name" };
-        public StringValueEditorViewModel SpeakerDialogue { get; } = new StringValueEditorViewModel() { Value = "Speaker Dialog" };
+        public StringValueEditorViewModel SpeakerName { get; } = new StringValueEditorViewModel() { Value = "", LabelText = "Speaker Name" };
+        public StringValueEditorViewModel SpeakerDialogue { get; } = new StringValueEditorViewModel() { Value = "", LabelText = "Speaker Dialog" };
         public IntegerValueEditorViewModel ResponseCount { get; } = new IntegerValueEditorViewModel() { Value = 0 };
         public ValueNodeOutputViewModel<int?> RCountOutput { get; }
         public ObservableCollection<ValueNodeOutputViewModel<string>> Responses { get; } = new();
@@ -31,12 +31,14 @@ namespace NodeNetworkExample
 
             var input1 = new ValueNodeInputViewModel<string>()
             {
+                Name = SpeakerName.LabelText,
                 Port = null,
                 Editor = SpeakerName
             };
 
             var input2 = new ValueNodeInputViewModel<string>()
             {
+                Name = SpeakerDialogue.LabelText,
                 Port = null,
                 Editor = SpeakerDialogue
             };
