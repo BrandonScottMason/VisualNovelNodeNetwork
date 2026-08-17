@@ -1,5 +1,6 @@
-﻿using System.Windows;
-using ReactiveUI;
+﻿using ReactiveUI;
+using System.Reactive.Disposables;
+using System.Windows;
 
 namespace VisualNovelNodeNetwork
 {
@@ -26,9 +27,11 @@ namespace VisualNovelNodeNetwork
         {
             InitializeComponent();
 
-            this.WhenActivated(d => d(
-                this.Bind(ViewModel, vm => vm.Value, v => v.TextBox.Text)
-            ));
+            this.WhenActivated(d =>
+            {
+                this.Bind(ViewModel, vm => vm.Value, v => v.TextBox.Text).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.BoxWidth, v => v.TextBox.Width).DisposeWith(d);
+            });
         }
     }
 }

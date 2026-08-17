@@ -14,7 +14,7 @@ namespace VisualNovelNodeNetwork
 
         public NodeInputViewModel Input { get; }
         public StringValueEditorViewModel SpeakerName { get; } = new StringValueEditorViewModel() { Value = "", LabelText = "Speaker Name" };
-        public StringValueEditorViewModel SpeakerDialogue { get; } = new StringValueEditorViewModel() { Value = "", LabelText = "Speaker Dialog" };
+        public StringValueEditorViewModel SpeakerDialogue { get; } = new StringValueEditorViewModel() { Value = "", LabelText = "Speaker Dialog", BoxWidth = 300 };
         public IntegerValueEditorViewModel ResponseCount { get; } = new IntegerValueEditorViewModel() { Value = 0 };
         public ValueNodeOutputViewModel<int?> RCountOutput { get; }
         public ObservableCollection<ValueNodeOutputViewModel<string>> Responses { get; } = new();

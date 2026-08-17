@@ -6,5 +6,5 @@
              xmlns:local="clr-namespace:VisualNovelNodeNetwork"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <TextBox x:Name="TextBox" MinWidth="150" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap" AcceptsReturn="True"/>
+    <TextBox x:Name="TextBox" MinWidth="200" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Background="Wheat"/>
 </UserControl>
