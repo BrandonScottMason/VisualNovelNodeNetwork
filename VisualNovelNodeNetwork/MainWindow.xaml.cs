@@ -1,4 +1,5 @@
-﻿using NodeNetwork.ViewModels;
+﻿using DynamicData;
+using NodeNetwork.ViewModels;
 using System.Windows;
 using System.Windows.Input;
 
@@ -13,7 +14,7 @@ namespace VisualNovelNodeNetwork
         /// Static node list view model that provides access to available node types for the application.
         /// </summary>
         public static NodeListViewModel NodeList { get; set; } = new NodeListViewModel();
-
+        private string _currentFileName = string.Empty;
         private MainViewModel _viewModel;
         private NodeViewModel? _previewNode = null; // A visual represenation of the node that is activley being dragged but not added to the network yet
 
@@ -139,38 +140,14 @@ namespace VisualNovelNodeNetwork
             }
         }
 
-        private void mnuNew_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private async void mnuOpen_Click(object sender, RoutedEventArgs e)
+        private async void SaveFile(object sender, string fileName, bool clearNetworkWhenDone = false)
         {
             var menuItem = (System.Windows.Controls.MenuItem)sender;
             menuItem.IsEnabled = false;
 
             try
             {
-                await _viewModel.LoadNetworkAsync("narrative.json");
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show($"Open Failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                menuItem.IsEnabled = false;
-            }
-        }
-
-        private async void mnuSave_Click(object sender, RoutedEventArgs e)
-        {
-            var menuItem = (System.Windows.Controls.MenuItem)sender;
-            menuItem.IsEnabled = false;
-
-            try
-            {
-                await _viewModel.SaveNetworkAsync("narrative.json");
+                await _viewModel.SaveNetworkAsync(fileName);
             }
             catch (Exception ex)
             {
@@ -178,18 +155,86 @@ namespace VisualNovelNodeNetwork
             }
             finally
             {
-                menuItem.IsEnabled = false;
+                menuItem.IsEnabled = true;
+                if (clearNetworkWhenDone)
+                {
+                    _viewModel.Network.Nodes.Clear();
+                    _currentFileName = string.Empty;
+                }
             }
+        }
+
+        private async void SaveFileAs(object sender, bool clearNetworkWhenDone = false)
+        {
+            System.Windows.Forms.SaveFileDialog saveFileDialog = new() { Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*" };
+
+            if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK && saveFileDialog.FileName != string.Empty)
+            {
+                SaveFile(sender, saveFileDialog.FileName, clearNetworkWhenDone);
+            }
+        }
+        private void mnuNew_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentFileName != string.Empty || _viewModel.Network.Nodes.Count > 0)
+            {
+                MessageBoxResult result = MessageBox.Show("You have potentially unsaved changes, do you want to save first?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    if (_currentFileName == string.Empty)
+                        SaveFileAs(sender, true);
+                    else
+                        SaveFile(sender, _currentFileName, true);
+                }
+                else
+                {
+                    _viewModel.Network.Nodes.Clear();
+                    _currentFileName = string.Empty;
+                }
+            }
+        }
+
+        private async void mnuOpen_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = (System.Windows.Controls.MenuItem)sender;
+            menuItem.IsEnabled = false;
+
+            System.Windows.Forms.OpenFileDialog openFileDialog = new() { Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*" };
+
+            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                try
+                {
+                    await _viewModel.LoadNetworkAsync(openFileDialog.FileName);
+                    _currentFileName = openFileDialog.FileName;
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show($"Open Failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                finally
+                {
+                    menuItem.IsEnabled = true;
+                }
+            }
+        }
+
+        private async void mnuSave_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentFileName == string.Empty)
+                SaveFileAs(sender);
+            else
+                SaveFile(sender, _currentFileName);
         }
 
         private void mnuSaveAs_Click(object sender, RoutedEventArgs e)
         {
-
+            SaveFileAs(sender);
         }
 
         private void mnuExit_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel.Network.Nodes.Count > 0)
+            if (_viewModel.Network.Nodes.Count > 0 || _currentFileName != string.Empty)
             {
                 MessageBoxResult result = MessageBox.Show("Are you sure you want to exit? Any unsaved work will be lost.", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
