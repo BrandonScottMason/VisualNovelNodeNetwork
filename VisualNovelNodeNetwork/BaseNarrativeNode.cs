@@ -25,7 +25,8 @@ namespace VisualNovelNodeNetwork
             this.Name = "Base Narrative Node";
             Input = new ValueNodeInputViewModel<string>
             {
-                Name = "Input"
+                Name = "Input",
+                MaxConnections = int.MaxValue
             };
             this.Inputs.Add(Input);
 
