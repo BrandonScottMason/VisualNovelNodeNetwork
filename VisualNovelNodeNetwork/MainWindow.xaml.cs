@@ -140,7 +140,7 @@ namespace VisualNovelNodeNetwork
             }
         }
 
-        private async void SaveFile(object sender, string fileName, bool clearNetworkWhenDone = false)
+        private async Task SaveFile(object sender, string fileName, bool clearNetworkWhenDone = false)
         {
             var menuItem = (System.Windows.Controls.MenuItem)sender;
             menuItem.IsEnabled = false;
@@ -161,19 +161,23 @@ namespace VisualNovelNodeNetwork
                     _viewModel.Network.Nodes.Clear();
                     _currentFileName = string.Empty;
                 }
+                else
+                {
+                    _currentFileName = fileName;
+                }
             }
         }
 
-        private async void SaveFileAs(object sender, bool clearNetworkWhenDone = false)
+        private async Task SaveFileAs(object sender, bool clearNetworkWhenDone = false)
         {
             System.Windows.Forms.SaveFileDialog saveFileDialog = new() { Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*" };
 
             if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK && saveFileDialog.FileName != string.Empty)
             {
-                SaveFile(sender, saveFileDialog.FileName, clearNetworkWhenDone);
+                await SaveFile(sender, saveFileDialog.FileName, clearNetworkWhenDone);
             }
         }
-        private void mnuNew_Click(object sender, RoutedEventArgs e)
+        private async void mnuNew_Click(object sender, RoutedEventArgs e)
         {
             if (_currentFileName != string.Empty || _viewModel.Network.Nodes.Count > 0)
             {
@@ -182,9 +186,13 @@ namespace VisualNovelNodeNetwork
                 if (result == MessageBoxResult.Yes)
                 {
                     if (_currentFileName == string.Empty)
-                        SaveFileAs(sender, true);
+                    {
+                        await SaveFileAs(sender, true);
+                    }
                     else
-                        SaveFile(sender, _currentFileName, true);
+                    {
+                        await SaveFile(sender, _currentFileName, true);
+                    }
                 }
                 else
                 {
@@ -199,6 +207,29 @@ namespace VisualNovelNodeNetwork
             var menuItem = (System.Windows.Controls.MenuItem)sender;
             menuItem.IsEnabled = false;
 
+            if (_currentFileName != string.Empty || _viewModel.Network.Nodes.Count > 0)
+            {
+                MessageBoxResult result = MessageBox.Show("You have potentially unsaved changes, do you want to save first?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    if (_currentFileName == string.Empty)
+                    {
+                        await SaveFileAs(sender, true);
+                    }
+                    else
+                    {
+                        await SaveFile(sender, _currentFileName, true);
+                    }
+                }
+                else
+                {
+                    _viewModel.Network.Nodes.Clear();
+                    _currentFileName = string.Empty;
+                }
+            }
+
+            menuItem.IsEnabled = false;
             System.Windows.Forms.OpenFileDialog openFileDialog = new() { Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*" };
 
             if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -222,14 +253,18 @@ namespace VisualNovelNodeNetwork
         private async void mnuSave_Click(object sender, RoutedEventArgs e)
         {
             if (_currentFileName == string.Empty)
-                SaveFileAs(sender);
+            {
+                await SaveFileAs(sender);
+            }
             else
-                SaveFile(sender, _currentFileName);
+            {
+                await SaveFile(sender, _currentFileName);
+            }
         }
 
-        private void mnuSaveAs_Click(object sender, RoutedEventArgs e)
+        private async void mnuSaveAs_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileAs(sender);
+            await SaveFileAs(sender);
         }
 
         private void mnuExit_Click(object sender, RoutedEventArgs e)
