@@ -15,10 +15,10 @@ namespace VisualNovelNodeNetwork
         public NodeInputViewModel Input { get; }
         public StringValueEditorViewModel SpeakerName { get; } = new StringValueEditorViewModel() { Value = "", LabelText = "Speaker Name" };
         public StringValueEditorViewModel SpeakerDialogue { get; } = new StringValueEditorViewModel() { Value = "", LabelText = "Speaker Dialog", BoxWidth = 300 };
-        public IntegerValueEditorViewModel ResponseCount { get; } = new IntegerValueEditorViewModel() { Value = 0 };
+        public IntegerValueEditorViewModel ConnectionCount { get; } = new IntegerValueEditorViewModel() { Value = 0 };
         public ValueNodeOutputViewModel<int?> RCountOutput { get; }
-        public ObservableCollection<ValueNodeOutputViewModel<string>> Responses { get; } = new();
-        public ReactiveCommand<int, Unit> UpdateResponsesCommand { get; }
+        public ObservableCollection<ValueNodeOutputViewModel<string>> Connections { get; } = new();
+        public ReactiveCommand<int, Unit> UpdateConnectionsCommand { get; }
 
         public BaseNarrativeNode()
         {
@@ -50,53 +50,53 @@ namespace VisualNovelNodeNetwork
             {
                 Name = "Value",
                 Port = null,
-                Editor = ResponseCount,
-                Value = this.WhenAnyValue(vm => vm.ResponseCount.Value)
+                Editor = ConnectionCount,
+                Value = this.WhenAnyValue(vm => vm.ConnectionCount.Value)
             };
             this.Outputs.Add(RCountOutput);
 
-            UpdateResponsesCommand = ReactiveCommand.Create<int>(UpdateResponses);
+            UpdateConnectionsCommand = ReactiveCommand.Create<int>(UpdateConnections);
 
-            this.WhenAnyValue(x => x.ResponseCount.Value)
-                .InvokeCommand(UpdateResponsesCommand)
+            this.WhenAnyValue(x => x.ConnectionCount.Value)
+                .InvokeCommand(UpdateConnectionsCommand)
                 .DisposeWith(_disposables);
         }
 
-        private void UpdateResponses(int newValue)
+        private void UpdateConnections(int newValue)
         {
-            while (newValue > Responses.Count)
+            while (newValue > Connections.Count)
             {
-                AddResponseOutput();
+                AddConnectionOutput();
             }
 
-            while (newValue < Responses.Count)
+            while (newValue < Connections.Count)
             {
-                RemoveLastResponseOutput();
+                RemoveLastConnectionOutput();
             }
         }
 
-        private void AddResponseOutput()
+        private void AddConnectionOutput()
         {
-            var newResponse = new StringValueEditorViewModel { Value = $"Response {ResponseCount.Value}" };
+            var newConnection = new StringValueEditorViewModel { Value = string.Empty };
 
             var newOutput = new ValueNodeOutputViewModel<string>()
             {
-                Name = $"Response {Responses.Count + 1}",
-                Editor = newResponse,
-                Value = newResponse.WhenAnyValue(x => x.Value)
+                Name = $"Connection {Connections.Count + 1}",
+                Editor = newConnection,
+                Value = newConnection.WhenAnyValue(x => x.Value)
             };
 
-            Responses.Add(newOutput);
+            Connections.Add(newOutput);
             this.Outputs.Add(newOutput);
         }
 
-        private void RemoveLastResponseOutput()
+        private void RemoveLastConnectionOutput()
         {
-            if (Responses.Count > 0)
+            if (Connections.Count > 0)
             {
-                var lastResponse = Responses[Responses.Count - 1];
-                Responses.Remove(lastResponse);
-                this.Outputs.Remove(lastResponse);
+                var lastConnection = Connections[Connections.Count - 1];
+                Connections.Remove(lastConnection);
+                this.Outputs.Remove(lastConnection);
             }
         }
 
@@ -112,8 +112,8 @@ namespace VisualNovelNodeNetwork
                 { "PositionY", this.Position.Y },
                 { "SpeakerName", SpeakerName.Value },
                 { "SpeakerDialogue", SpeakerDialogue.Value },
-                { "ResponseCount", ResponseCount.Value ?? 0},
-                { "Responses", Responses
+                { "ConnectionCount", ConnectionCount.Value ?? 0},
+                { "Connections", Connections
                     .Select(r => (r.Editor as StringValueEditorViewModel)?.Value ?? "")
                     .ToList() }
             };
@@ -139,34 +139,34 @@ namespace VisualNovelNodeNetwork
             if (data.TryGetValue("SpeakerDialogue", out var dialogue))
                 SpeakerDialogue.Value = dialogue.ToString() ?? string.Empty;
 
-            if (data.TryGetValue("ResponseCount", out var responseCount) && int.TryParse(responseCount.ToString(), out var count))
+            if (data.TryGetValue("ConnectionCount", out var connectionCount) && int.TryParse(connectionCount.ToString(), out var count))
             {
-                ResponseCount.Value = count;
+                ConnectionCount.Value = count;
             }
 
-            // Restore response texts
-            if (data.TryGetValue("Responses", out var responses))
+            // Restore connection texts
+            if (data.TryGetValue("Connections", out var connections))
             {
-                List<string> responsesList = new();
+                List<string> connectionsList = new();
 
-                if (responses is System.Text.Json.JsonElement jsonElement && jsonElement.ValueKind == System.Text.Json.JsonValueKind.Array)
+                if (connections is System.Text.Json.JsonElement jsonElement && jsonElement.ValueKind == System.Text.Json.JsonValueKind.Array)
                 {
-                    responsesList = jsonElement.EnumerateArray().Select(r => r.GetString() ?? "").ToList();
+                    connectionsList = jsonElement.EnumerateArray().Select(r => r.GetString() ?? "").ToList();
                 }
-                else if (responses is List<object> list)
+                else if (connections is List<object> list)
                 {
-                    responsesList = list.Cast<object>().Select(r => r?.ToString() ?? "").ToList();
+                    connectionsList = list.Cast<object>().Select(r => r?.ToString() ?? "").ToList();
                 }
-                else if (responses is IEnumerable<object> enumerable)
+                else if (connections is IEnumerable<object> enumerable)
                 {
-                    responsesList = enumerable.Select(r => r?.ToString() ?? "").ToList();
+                    connectionsList = enumerable.Select(r => r?.ToString() ?? "").ToList();
                 }
 
-                for (int i = 0; i < responsesList.Count && i < Responses.Count; i++)
+                for (int i = 0; i < connectionsList.Count && i < Connections.Count; i++)
                 {
-                    if (Responses[i].Editor is StringValueEditorViewModel editor)
+                    if (Connections[i].Editor is StringValueEditorViewModel editor)
                     {
-                        editor.Value = responsesList[i].ToString() ?? string.Empty;
+                        editor.Value = connectionsList[i].ToString() ?? string.Empty;
                     }
                 }
             }

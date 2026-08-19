@@ -134,7 +134,7 @@ namespace VisualNovelNodeNetwork
             if (_previewNode != null)
             {
                 var previewNode = _viewModel.Network.Nodes.Items.Last();
-                previewNode.Name = $"{name} {_viewModel.Network.Nodes.Count}";
+                previewNode.Name = $"Node {_viewModel.Network.Nodes.Count} ({name})";
                 previewNode.Position = _previewNode.Position;
                 _previewNode = null;
             }
