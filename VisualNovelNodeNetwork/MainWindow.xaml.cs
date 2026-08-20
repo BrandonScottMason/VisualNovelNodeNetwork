@@ -79,8 +79,11 @@ namespace VisualNovelNodeNetwork
                 // Update preview node position during drag
                 if (_previewNode != null)
                 {
-                    var mousePosition = e.GetPosition(networkView);
-                    _previewNode.Position = mousePosition;
+                    Size nodeSize = _previewNode.Size;
+                    var canvasMousePos = e.GetPosition(networkView.CanvasOriginElement);
+                    double x = canvasMousePos.X - (nodeSize.Width * 0.5);
+                    double y = canvasMousePos.Y - (nodeSize.Height * 0.5);
+                    _previewNode.Position = new Point(x, y);
                 }
                 else if (_viewModel.GetDraggedNodeTypeIndex().HasValue)
                 {
@@ -140,6 +143,7 @@ namespace VisualNovelNodeNetwork
             }
         }
 
+        #region MenuMethods
         private async Task SaveFile(object sender, string fileName, bool clearNetworkWhenDone = false)
         {
             var menuItem = (System.Windows.Controls.MenuItem)sender;
@@ -284,4 +288,5 @@ namespace VisualNovelNodeNetwork
             }
         }
     }
+        #endregion
 }
