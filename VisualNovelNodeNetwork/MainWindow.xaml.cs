@@ -1,7 +1,8 @@
 ﻿using DynamicData;
-using NodeNetwork.ViewModels;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace VisualNovelNodeNetwork
 {
@@ -16,7 +17,7 @@ namespace VisualNovelNodeNetwork
         public static NodeListViewModel NodeList { get; set; } = new NodeListViewModel();
         private string _currentFileName = string.Empty;
         private MainViewModel _viewModel;
-        private NodeViewModel? _previewNode = null; // A visual represenation of the node that is activley being dragged but not added to the network yet
+        private DragNodePreviewAdorner? _dragAdorner = null; // A visual represenation of the node that is activley being dragged but not added to the network yet
 
         public MainWindow()
         {
@@ -70,24 +71,45 @@ namespace VisualNovelNodeNetwork
         }
 
         /// <summary>
+        /// Handles the Drag Enter event to create an adorner to preview the dragged node.
+        /// </summary>
+        private void NetworkView_DragEnter(object sender, DragEventArgs e)
+        {
+            if(_viewModel.DraggedNodeType.HasValue && _dragAdorner == null)
+            {
+                Size adornerSize = new(300, 250);
+                AdornerLayer layer = AdornerLayer.GetAdornerLayer(networkView);
+                _dragAdorner = new DragNodePreviewAdorner(networkView, BaseNarrativeNode.DefaultSize);
+                layer.Add(_dragAdorner);
+            }
+        }
+
+        /// <summary>
         /// Handles the drag over event to allow drop on the network view.
         /// </summary>
         private void NetworkView_DragOver(object sender, DragEventArgs e)
         {
-            if(_viewModel.DraggedNodeType.HasValue)
+            if(_viewModel.DraggedNodeType.HasValue && _dragAdorner != null)
             {
-                // Update preview node position during drag
-                if (_previewNode != null)
+                Point viewMousePos = e.GetPosition(networkView);
+                if (networkView.CanvasOriginElement is FrameworkElement zoomedCanvasElement)
                 {
-                    Size nodeSize = _previewNode.Size;
-                    var canvasMousePos = e.GetPosition(networkView.CanvasOriginElement);
-                    double x = canvasMousePos.X - (nodeSize.Width * 0.5);
-                    double y = canvasMousePos.Y - (nodeSize.Height * 0.5);
-                    _previewNode.Position = new Point(x, y);
-                }
-                else if (_viewModel.GetDraggedNodeTypeIndex().HasValue)
-                {
-                    CreatePreviewNode(_viewModel.GetDraggedNodeTypeIndex());
+                    double currentScale = 1.0;
+                    if (zoomedCanvasElement.RenderTransform is TransformGroup group)
+                    {
+                        var scaleTransform = group.Children.OfType<ScaleTransform>().FirstOrDefault();
+                        if (scaleTransform != null) currentScale = scaleTransform.ScaleX;
+                    }
+                    else if (zoomedCanvasElement.RenderTransform is ScaleTransform scale)
+                    {
+                        currentScale = scale.ScaleX;
+                    }
+                    else if (zoomedCanvasElement.RenderTransform is MatrixTransform matrixTransform)
+                    {
+                        currentScale = matrixTransform.Matrix.M11; // M11 represents horizontal scaling
+                    }
+
+                    _dragAdorner.UpdatePosition(viewMousePos, currentScale);
                 }
 
                 e.Effects = DragDropEffects.Copy;
@@ -104,42 +126,50 @@ namespace VisualNovelNodeNetwork
         /// </summary>
         private void NetworkView_Drop(object sender, DragEventArgs e)
         {
-            if(e.Data.GetData(typeof((string, int))) is (string name, int index))
-            {
-                DropPreviewNode(name);
-                e.Handled = true;
-            }
+            ClearAdorner();
 
-            _viewModel.EndDragNode();
+            if (e.Data.GetData(typeof((string, int))) is (string name, int index) && _viewModel.DraggedNodeType.HasValue)
+            {
+                CreateNode(name, index, e.GetPosition(networkView.CanvasOriginElement));
+                e.Handled = true;
+                e.Effects = DragDropEffects.None;
+                _viewModel.EndDragNode();
+            }
+        }
+
+        private void NetworkView_DragLeave(object sender, DragEventArgs e)
+        {
+            ClearAdorner();
         }
 
         /// <summary>
-        /// Creates a preview node that follows the mouse during dragging.
+        /// Creates a node at the current position of the preview adorner.
         /// </summary>
-        private void CreatePreviewNode(int? nodeTypeIndex)
+        private void CreateNode(string name, int? nodeTypeIndex, Point position)
         {
             if (nodeTypeIndex >= 0 && nodeTypeIndex < _viewModel.NodeList.NodeTypes.Count)
             {
-                _previewNode = _viewModel.NodeList.CreateNode(nodeTypeIndex.Value);
-                if (_previewNode != null)
+                var node = _viewModel.NodeList.CreateNode(nodeTypeIndex.Value);
+                if (node != null)
                 {
-                    _previewNode.Name = "Preview";
-                    _viewModel.Network.Nodes.Edit(updater => updater.Add(_previewNode));
+                    node.Name = $"Node {_viewModel.Network.Nodes.Count + 1} ({name})";
+                    Point adjustedPos = new(position.X - (BaseNarrativeNode.DefaultSize.Width * 0.5), position.Y - (BaseNarrativeNode.DefaultSize.Height * 0.5));
+                    node.Position = adjustedPos;
+                    _viewModel.Network.Nodes.Edit(updater => updater.Add(node));
                 }
             }
         }
 
         /// <summary>
-        /// Removes the preview node from the network.
+        /// Removes the Adorner from the adorner layer.
         /// </summary>
-        private void DropPreviewNode(string name)
+        private void ClearAdorner()
         {
-            if (_previewNode != null)
+            if(_dragAdorner != null)
             {
-                var previewNode = _viewModel.Network.Nodes.Items.Last();
-                previewNode.Name = $"Node {_viewModel.Network.Nodes.Count} ({name})";
-                previewNode.Position = _previewNode.Position;
-                _previewNode = null;
+                AdornerLayer layer = AdornerLayer.GetAdornerLayer(networkView);
+                layer?.Remove(_dragAdorner);
+                _dragAdorner = null;
             }
         }
 

@@ -2,16 +2,17 @@
 using NodeNetwork.ViewModels;
 using NodeNetwork.Toolkit.ValueNode;
 using ReactiveUI;
-using System.Reactive;
 using System.Collections.ObjectModel;
+using System.Reactive;
 using System.Reactive.Disposables;
+using System.Windows;
 
 namespace VisualNovelNodeNetwork
 {
     public class BaseNarrativeNode : NodeViewModel
     {
         private CompositeDisposable _disposables = new();
-
+        public static readonly Size DefaultSize = new(320, 235); 
         public NodeInputViewModel Input { get; }
         public StringValueEditorViewModel SpeakerName { get; } = new StringValueEditorViewModel() { Value = "", LabelText = "Speaker Name" };
         public StringValueEditorViewModel SpeakerDialogue { get; } = new StringValueEditorViewModel() { Value = "", LabelText = "Speaker Dialog", BoxWidth = 300 };
