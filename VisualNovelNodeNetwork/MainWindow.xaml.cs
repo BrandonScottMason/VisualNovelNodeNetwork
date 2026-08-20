@@ -95,12 +95,7 @@ namespace VisualNovelNodeNetwork
                 if (networkView.CanvasOriginElement is FrameworkElement zoomedCanvasElement)
                 {
                     double currentScale = 1.0;
-                    if (zoomedCanvasElement.RenderTransform is TransformGroup group)
-                    {
-                        var scaleTransform = group.Children.OfType<ScaleTransform>().FirstOrDefault();
-                        if (scaleTransform != null) currentScale = scaleTransform.ScaleX;
-                    }
-                    else if (zoomedCanvasElement.RenderTransform is ScaleTransform scale)
+                    if (zoomedCanvasElement.RenderTransform is ScaleTransform scale)
                     {
                         currentScale = scale.ScaleX;
                     }
