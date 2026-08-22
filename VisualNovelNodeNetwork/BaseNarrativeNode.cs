@@ -11,14 +11,15 @@ namespace VisualNovelNodeNetwork
 {
     public class BaseNarrativeNode : NodeViewModel
     {
-        private CompositeDisposable _disposables = new();
-        public static readonly Size DefaultSize = new(320, 235); 
+        private CompositeDisposable _disposables = [];
+        public static readonly Size DefaultSize = new(320, 235);
         public NodeInputViewModel Input { get; }
-        public StringValueEditorViewModel SpeakerName { get; } = new StringValueEditorViewModel() { Value = "", LabelText = "Speaker Name" };
-        public StringValueEditorViewModel SpeakerDialogue { get; } = new StringValueEditorViewModel() { Value = "", LabelText = "Speaker Dialog", BoxWidth = 300 };
-        public IntegerValueEditorViewModel ConnectionCount { get; } = new IntegerValueEditorViewModel() { Value = 0 };
+        public StringValueEditorViewModel SpeakerName { get; } = new() { Value = "", LabelText = "Speaker Name" };
+        public StringValueEditorViewModel SpeakerDialogue { get; } = new() { Value = "", LabelText = "Speaker Dialog", BoxWidth = 300 };
+        public AudioFileOpenEditorViewModel AudioVoiceOver { get; } = new() { Value = "", LabelText = "Audio Voice Over"};
+        public IntegerValueEditorViewModel ConnectionCount { get; } = new() { Value = 0 };
         public ValueNodeOutputViewModel<int?> RCountOutput { get; }
-        public ObservableCollection<ValueNodeOutputViewModel<string>> Connections { get; } = new();
+        public ObservableCollection<ValueNodeOutputViewModel<string>> Connections { get; } = [];
         public ReactiveCommand<int, Unit> UpdateConnectionsCommand { get; }
 
         public BaseNarrativeNode()
@@ -31,22 +32,30 @@ namespace VisualNovelNodeNetwork
             };
             this.Inputs.Add(Input);
 
-            var input1 = new ValueNodeInputViewModel<string>()
+            var inputSpeakerName = new ValueNodeInputViewModel<string>()
             {
                 Name = SpeakerName.LabelText,
                 Port = null,
                 Editor = SpeakerName
             };
 
-            var input2 = new ValueNodeInputViewModel<string>()
+            var inputSpeakerDialogue = new ValueNodeInputViewModel<string>()
             {
                 Name = SpeakerDialogue.LabelText,
                 Port = null,
                 Editor = SpeakerDialogue
             };
 
-            this.Inputs.Add(input1);
-            this.Inputs.Add(input2);
+            var inputAudioVO = new ValueNodeInputViewModel<string>()
+            {
+                Name = AudioVoiceOver.LabelText,
+                Port = null,
+                Editor = AudioVoiceOver
+            };
+
+            this.Inputs.Add(inputSpeakerName);
+            this.Inputs.Add(inputSpeakerDialogue);
+            this.Inputs.Add(inputAudioVO);
 
             RCountOutput = new ValueNodeOutputViewModel<int?>
             {
@@ -114,6 +123,8 @@ namespace VisualNovelNodeNetwork
                 { "PositionY", this.Position.Y },
                 { "SpeakerName", SpeakerName.Value },
                 { "SpeakerDialogue", SpeakerDialogue.Value },
+                { "AudioVoiceOver", AudioVoiceOver.Value },
+                { "AdvanceOnAudioEnd", AudioVoiceOver.AdvanceOnAudioEnd },
                 { "ConnectionCount", ConnectionCount.Value ?? 0},
                 { "Connections", Connections
                     .Select(r => (r.Editor as StringValueEditorViewModel)?.Value ?? "")
@@ -140,6 +151,12 @@ namespace VisualNovelNodeNetwork
 
             if (data.TryGetValue("SpeakerDialogue", out var dialogue))
                 SpeakerDialogue.Value = dialogue.ToString() ?? string.Empty;
+
+            if (data.TryGetValue("AudioVoiceOver", out var audio))
+                AudioVoiceOver.Value = audio.ToString() ?? string.Empty;
+
+            if (data.TryGetValue("AdvanceOnAudioEnd", out var advanceOnAudioEnd) && bool.TryParse(advanceOnAudioEnd.ToString(), out var advance))
+                AudioVoiceOver.AdvanceOnAudioEnd = advance;
 
             if (data.TryGetValue("ConnectionCount", out var connectionCount) && int.TryParse(connectionCount.ToString(), out var count))
             {
