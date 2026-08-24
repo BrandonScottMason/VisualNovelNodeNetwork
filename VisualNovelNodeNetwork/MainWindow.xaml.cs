@@ -273,11 +273,9 @@ namespace VisualNovelNodeNetwork
                 {
                     System.Windows.MessageBox.Show($"Open Failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-                finally
-                {
-                    menuItem.IsEnabled = true;
-                }
             }
+
+            menuItem.IsEnabled = true;
         }
 
         private async void mnuSave_Click(object sender, RoutedEventArgs e)
