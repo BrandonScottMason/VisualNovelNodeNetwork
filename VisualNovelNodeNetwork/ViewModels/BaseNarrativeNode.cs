@@ -7,6 +7,8 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Windows;
 using VisualNovelNodeNetwork.Views;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace VisualNovelNodeNetwork.ViewModels
 {
@@ -14,14 +16,25 @@ namespace VisualNovelNodeNetwork.ViewModels
     {
         private CompositeDisposable _disposables = [];
         public static readonly Size DefaultSize = new(320, 235);
+
+        #region ViewModels
         public NodeInputViewModel Input { get; }
         public StringValueEditorViewModel SpeakerName { get; } = new() { Value = "", LabelText = "Speaker Name" };
         public StringValueEditorViewModel SpeakerDialogue { get; } = new() { Value = "", LabelText = "Speaker Dialog", BoxWidth = 300 };
+        public EnumEditorViewModel SpeakerExpression { get; } = new(typeof(SpeakerExpressions));
         public AudioFileOpenEditorViewModel AudioVoiceOver { get; } = new() { Value = "", LabelText = "Audio Voice Over"};
         public IntegerValueEditorViewModel ConnectionCount { get; } = new() { Value = 0 };
         public ValueNodeOutputViewModel<int?> RCountOutput { get; }
         public ObservableCollection<ValueNodeOutputViewModel<string>> Connections { get; } = [];
+        #endregion
+
         public ReactiveCommand<int, Unit> UpdateConnectionsCommand { get; }
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        enum SpeakerExpressions
+        {
+            Default, Happy, Sad, Angry, Scared, Digust, Surprise, Annoyed, Crying, Sleepy, Intoxicated, Nervous, Smug
+        }
 
         public BaseNarrativeNode()
         {
@@ -47,6 +60,13 @@ namespace VisualNovelNodeNetwork.ViewModels
                 Editor = SpeakerDialogue
             };
 
+            var inputSpeakerExpression = new ValueNodeInputViewModel<object>()
+            {
+                Name = nameof(SpeakerExpression),
+                Port = null,
+                Editor = SpeakerExpression
+            };
+
             var inputAudioVO = new ValueNodeInputViewModel<string>()
             {
                 Name = AudioVoiceOver.LabelText,
@@ -56,6 +76,7 @@ namespace VisualNovelNodeNetwork.ViewModels
 
             this.Inputs.Add(inputSpeakerName);
             this.Inputs.Add(inputSpeakerDialogue);
+            this.Inputs.Add(inputSpeakerExpression);
             this.Inputs.Add(inputAudioVO);
 
             RCountOutput = new ValueNodeOutputViewModel<int?>
@@ -124,6 +145,7 @@ namespace VisualNovelNodeNetwork.ViewModels
                 { "PositionY", this.Position.Y },
                 { "SpeakerName", SpeakerName.Value },
                 { "SpeakerDialogue", SpeakerDialogue.Value },
+                { "SpeakerExpression", JsonSerializer.Serialize(SpeakerExpression.Value)},
                 { "AudioVoiceOver", AudioVoiceOver.Value },
                 { "AdvanceOnAudioEnd", AudioVoiceOver.AdvanceOnAudioEnd },
                 { "ConnectionCount", ConnectionCount.Value ?? 0},
@@ -152,6 +174,16 @@ namespace VisualNovelNodeNetwork.ViewModels
 
             if (data.TryGetValue("SpeakerDialogue", out var dialogue))
                 SpeakerDialogue.Value = dialogue.ToString() ?? string.Empty;
+
+            if (data.TryGetValue("SpeakerExpression", out var expression))
+            {
+                var expressionString = expression.ToString();
+                if (!string.IsNullOrEmpty(expressionString))
+                {
+                    SpeakerExpressions exp = JsonSerializer.Deserialize<SpeakerExpressions>(expressionString);
+                    SpeakerExpression.SelectedOptionIndex = (int)exp;
+                }
+            }
 
             if (data.TryGetValue("AudioVoiceOver", out var audio))
                 AudioVoiceOver.Value = audio.ToString() ?? string.Empty;
