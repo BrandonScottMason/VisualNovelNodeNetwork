@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using ReactiveUI;
+using VisualNovelNodeNetwork.ViewModels;
 
 namespace VisualNovelNodeNetwork
 {

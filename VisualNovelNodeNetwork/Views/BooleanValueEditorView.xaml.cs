@@ -2,6 +2,7 @@
 using System.Reactive.Disposables;
 using System.Windows;
 using System.Windows.Controls;
+using VisualNovelNodeNetwork.ViewModels;
 
 namespace VisualNovelNodeNetwork
 {

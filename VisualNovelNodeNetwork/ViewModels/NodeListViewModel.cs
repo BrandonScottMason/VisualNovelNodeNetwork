@@ -1,7 +1,7 @@
 using ReactiveUI;
 using System.Text.RegularExpressions;
 
-namespace VisualNovelNodeNetwork
+namespace VisualNovelNodeNetwork.ViewModels
 {
     /// <summary>
     /// Represents a node type that can be added to the network.

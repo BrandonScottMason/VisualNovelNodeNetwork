@@ -2,7 +2,7 @@
 using System.Reactive.Linq;
 using ReactiveUI;
 
-namespace VisualNovelNodeNetwork
+namespace VisualNovelNodeNetwork.ViewModels
 {
     public class AudioFileOpenEditorViewModel : StringValueEditorViewModel
     {

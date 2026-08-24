@@ -4,6 +4,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Input;
+using VisualNovelNodeNetwork.ViewModels;
 
 namespace VisualNovelNodeNetwork
 {

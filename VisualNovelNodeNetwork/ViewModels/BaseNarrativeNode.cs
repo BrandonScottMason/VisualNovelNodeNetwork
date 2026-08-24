@@ -7,7 +7,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Windows;
 
-namespace VisualNovelNodeNetwork
+namespace VisualNovelNodeNetwork.ViewModels
 {
     public class BaseNarrativeNode : NodeViewModel
     {

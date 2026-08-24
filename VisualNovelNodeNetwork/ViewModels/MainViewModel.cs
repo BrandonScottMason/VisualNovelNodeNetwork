@@ -5,7 +5,7 @@ using System.IO;
 using System.Reactive.Disposables;
 using System.Text.Json;
 
-namespace VisualNovelNodeNetwork
+namespace VisualNovelNodeNetwork.ViewModels
 {
     /// <summary>
     /// Main view model for the application that orchestrates the network and node list.
