@@ -3,7 +3,7 @@ using System.Reactive.Disposables;
 using System.Windows;
 using VisualNovelNodeNetwork.ViewModels;
 
-namespace VisualNovelNodeNetwork
+namespace VisualNovelNodeNetwork.Views
 {
     public partial class StringValueEditorView : IViewFor<StringValueEditorViewModel>
     {

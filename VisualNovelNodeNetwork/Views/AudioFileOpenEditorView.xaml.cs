@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Input;
 using VisualNovelNodeNetwork.ViewModels;
 
-namespace VisualNovelNodeNetwork
+namespace VisualNovelNodeNetwork.Views
 {
     /// <summary>
     /// Interaction logic for AudioFileOpenEditorView.xaml

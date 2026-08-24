@@ -1,5 +1,6 @@
 ﻿using NodeNetwork.Toolkit.ValueNode;
 using ReactiveUI;
+using VisualNovelNodeNetwork.Views;
 
 namespace VisualNovelNodeNetwork.ViewModels
 {

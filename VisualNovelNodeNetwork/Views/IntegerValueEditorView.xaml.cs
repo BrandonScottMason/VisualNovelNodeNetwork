@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using ReactiveUI;
 using VisualNovelNodeNetwork.ViewModels;
 
-namespace VisualNovelNodeNetwork
+namespace VisualNovelNodeNetwork.Views
 {
     public partial class IntegerValueEditorView : UserControl, IViewFor<IntegerValueEditorViewModel>
     {

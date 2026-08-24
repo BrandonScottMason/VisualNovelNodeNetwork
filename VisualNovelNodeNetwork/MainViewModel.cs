@@ -4,8 +4,9 @@ using ReactiveUI;
 using System.IO;
 using System.Reactive.Disposables;
 using System.Text.Json;
+using VisualNovelNodeNetwork.ViewModels;
 
-namespace VisualNovelNodeNetwork.ViewModels
+namespace VisualNovelNodeNetwork
 {
     /// <summary>
     /// Main view model for the application that orchestrates the network and node list.

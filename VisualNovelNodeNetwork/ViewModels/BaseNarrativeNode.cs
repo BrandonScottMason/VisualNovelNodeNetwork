@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Windows;
+using VisualNovelNodeNetwork.Views;
 
 namespace VisualNovelNodeNetwork.ViewModels
 {

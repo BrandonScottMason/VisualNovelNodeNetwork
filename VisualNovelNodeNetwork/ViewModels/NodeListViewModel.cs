@@ -1,5 +1,6 @@
 using ReactiveUI;
 using System.Text.RegularExpressions;
+using VisualNovelNodeNetwork.Views;
 
 namespace VisualNovelNodeNetwork.ViewModels
 {

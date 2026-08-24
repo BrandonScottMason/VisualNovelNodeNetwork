@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using VisualNovelNodeNetwork.ViewModels;
 
-namespace VisualNovelNodeNetwork
+namespace VisualNovelNodeNetwork.Views
 {
     /// <summary>
     /// Interaction logic for BaseNarrativeNodeView.xaml
